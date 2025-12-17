@@ -62,8 +62,7 @@ const Community:React.FC = () => {
             {projects.map((project) => (
               <Link
                 key={project.id}
-                to={`/project/${project.id}}`}
-                target='_blank'
+                to={`/projects/${project.id}`}
                 className=" w-72 max-sm:mx-auto cursor-pointer
              bg-gray-900/60 border border-gray-700 rounded-lg overflow-hidden
                hover:border-indigo-800/80
