@@ -249,4 +249,7 @@ export const iframeScript = `
             });
         })();
         </script>
+        <body>
+        hello
+        </body>
 `;
