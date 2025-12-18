@@ -66,7 +66,7 @@ const MyProjects: React.FC = () => {
             {projects.map((project) => (
               <div
                 key={project.id}
-                onClick={() => navigate(`/project/${project.id}`)}
+                onClick={() => navigate(`/projects/${project.id}`)}
                 className="relative group w-72 max-sm:mx-auto cursor-pointer
              bg-gray-900/60 border border-gray-700 rounded-lg overflow-hidden
              shadow-md hover:shadow-indigo-700/30 hover:border-indigo-800/80
