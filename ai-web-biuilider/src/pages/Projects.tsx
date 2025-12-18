@@ -46,8 +46,21 @@ const Projects: React.FC = () => {
 
   }
 
+  //download  code (INDEX.HTML)
   const downloadCode = async()=>{
-
+    const code = previewRef.current?.getCode() || project?.current_code;
+    if(!code){
+      if(generating){
+        return;
+      }
+      return
+    }
+    const element = document.createElement('a')
+    const file = new Blob([code],{type:"text/html"})
+    element.href = URL.createObjectURL(file)
+    element.download = "index.html"
+    document.body.appendChild(element)
+    element.click();
   }
 
 

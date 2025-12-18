@@ -20,9 +20,8 @@ function App() {
   return (
     <div>
       {!hideNavBar && <Navbar/>}
-
      <Routes>
-      <Route  path="/projects/:projectId" Component={Projects}/>
+      <Route  path="/projects/:projectId" element={<Projects/>}/>
       <Route path="/" element={<Home/>}/>
       <Route path="/pricing" element={<Pricing/>}/>
       <Route path="/community" element={<Community/>}/>
