@@ -8,9 +8,7 @@ app.get('/',(req,res)=>{
     return res.json({message :"working of server"})
 })
 
-app.get('/hello',(req,res)=>{
-    return res.json({message :"working of server"})
-})
+
 
 
 
