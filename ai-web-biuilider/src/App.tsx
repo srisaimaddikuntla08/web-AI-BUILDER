@@ -7,6 +7,10 @@ import View from "./pages/View"
 import Myprojects from "./pages/Myprojects"
 import Projects from "./pages/Projects"
 import Navbar from "./components/Navbar"
+import {Toaster} from 'sonner'
+import AuthPage from "./pages/auth/AuthPage"
+import  Settings  from "./pages/Settings"
+
 
 
 function App() {
@@ -19,6 +23,7 @@ function App() {
 
   return (
     <div>
+      <Toaster/>
       {!hideNavBar && <Navbar/>}
      <Routes>
       <Route  path="/projects/:projectId" element={<Projects/>}/>
@@ -28,6 +33,8 @@ function App() {
       <Route path="/preview/:projectId" element={<Preview/>}/>   
       <Route path="/view/:projectId" element={<View/>}/>
       <Route path="/projects" element={<Myprojects/>}/>
+      <Route path="/account/settings" element={<Settings/>}/>
+      <Route path="/auth/:pathname" element={<AuthPage/>}/>
       <Route path="/preview/:projectId/:versionId" element={<Preview/>}/>
      </Routes>
     </div>
