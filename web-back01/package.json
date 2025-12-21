@@ -1,11 +1,13 @@
 {
   "name": "script",
   "license": "MIT",
+  "type": "commonjs",
   "scripts": {
-    "dev": "tsx ./src/main.ts",
+    "dev": "tsx watch ./src/main.ts",
     "migrate:dev": "prisma migrate dev --name init",
     "prisma:generate": "prisma generate",
-    "start": "nodemon ./src/main.ts"
+    "start": "tsc && node ./dist/src/main.js",
+    "build": "prisma generate && tsc"
   },
   "dependencies": {
     "@prisma/adapter-pg": "7.0.0",
@@ -14,7 +16,9 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^5.2.1",
+    "express-list-endpoints": "^7.1.1",
     "nodemon": "^3.1.11",
+    "openai": "^6.15.0",
     "pg": "^8.16.3"
   },
   "devDependencies": {
