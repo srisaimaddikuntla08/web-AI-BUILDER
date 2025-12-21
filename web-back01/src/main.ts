@@ -6,7 +6,7 @@ import { toNodeHandler } from 'better-auth/node';
 import { auth } from './lib/auth';
 import userRoute from './routes/userRoutes';
 
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 const corsOptions = {
     origin: process.env.TRUSTED_ORIGIN?.split(',') || [] ,
@@ -20,9 +20,6 @@ app.all('/api/auth/{*any}', toNodeHandler(auth));
 
 
 app.get("/",(req,res)=> res.send("hello"))
-
-
-
 
 
 app.listen(port,()=>console.log(`server is running on port :${port}`))
