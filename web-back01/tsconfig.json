@@ -1,14 +1,34 @@
 {
   "compilerOptions": {
-    "sourceMap": true,
+    /* Language & Environment */
+    "lib": ["ES2022"],
+    "target": "ES2022",
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+
+
+    /* Output */
     "outDir": "dist",
-    "strict": true,
-    "lib": [
-      "esnext"
-    ],
+    "rootDir": ".",
+    "sourceMap": true,
+    "declaration": false,
+
+    /* Interop & Modules */
     "esModuleInterop": true,
-    "module": "ESNext",
-    "moduleResolution": "node",
-    "resolveJsonModule": true
-  }
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+
+    /* Type Safety */
+    "strict": true,
+    "noImplicitAny": true,
+    "noUncheckedIndexedAccess": true,
+    "forceConsistentCasingInFileNames": true,
+
+    /* Runtime Compatibility */
+    "skipLibCheck": true,
+
+    /* Node */
+    "types": ["node"]
+  },
+  "exclude": ["node_modules", "dist"]
 }
