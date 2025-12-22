@@ -1,7 +1,7 @@
 
-import { Request,Response } from "express"
+import type { Request, Response } from "express";
 import Stripe from "stripe";
-import prisma from "../db/db";
+import prisma from "../db/db.ts";
 
 export const stripeWebHook = async(req:Request,res:Response)=>{
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);

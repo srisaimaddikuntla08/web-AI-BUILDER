@@ -3,8 +3,9 @@
     /* Language & Environment */
     "lib": ["ES2022"],
     "target": "ES2022",
-    "module": "CommonJS",
-    "moduleResolution": "Node",
+    "module": "NodeNext",
+    "moduleResolution": "nodenext",
+    "allowImportingTsExtensions": true,
 
 
     /* Output */
