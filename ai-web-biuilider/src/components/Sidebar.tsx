@@ -2,6 +2,8 @@ import React, { useEffect, useRef, useState } from 'react'
 import type { Message, Project, Version } from '../types'
 import { BotIcon, EyeIcon, Loader, Loader2Icon, SendIcon, UserIcon } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import api from '@/configs/axios'
+import { toast } from 'sonner'
 
 interface SidebarProps {
     isMenuOpen: boolean,
@@ -16,17 +18,55 @@ const Sidebar = ({ isMenuOpen, project, setProject, generating, setGenerating }:
 
     const messageRef = useRef<HTMLDivElement>(null)
     const [input, setInput] = useState('')
+    const fecthProjects = async () => {
+            try{
+                const {data} = await api.get(`/api/user/project/${project.id}`)
+                setProject(data.project)
+            }catch(error:any){
+                toast.error(error?.response?.data?.message || error.message)
+                console.log(error)
+
+            }
+    }
 
     const handleRollBack = async (versionId: string) => {
+            try{
+                const confirm = window.confirm('Are you sure you want to rollback to this version')
+                if(!confirm)return;
+                setGenerating(true)
+                 const {data} = await api.get(`/api/projects/rollback/${project.id}/${versionId}`)
+                 const {data:data2} = await  api.get(`/api/user/project/${project.id}`)
+                 toast.success(data.message)
+                 setProject(data2.project)
+                 setGenerating(false)
 
+            }catch(error:any){
+                setGenerating(false)
+                toast.error(error?.response?.data.message || error.message)
+                console.log(error)
+
+            }
     }
 
     const handleRevisions = async (e:React.FormEvent)=>{
         e.preventDefault();
-        setGenerating(true);
-        setTimeout(()=>{
-                IsGenerating(false)
-        },3000)
+        let interval:number | undefined
+        try{
+            setGenerating(true)
+            interval = setInterval(()=>{
+                fecthProjects();
+            },1000)
+            const {data} = await api.post(`/api/project/revision/${project.id}`,{message:input})
+            fecthProjects()
+            toast.success(data.message)
+            setInput('')
+            clearInterval(interval)
+        }catch(error:any){
+            setGenerating(false)
+            toast.error(error?.response?.data?.message || error.message)
+            console.log(error)
+            clearInterval(interval)
+        }
     }
 
 
@@ -102,8 +142,15 @@ const Sidebar = ({ isMenuOpen, project, setProject, generating, setGenerating }:
 
                 <form onSubmit={handleRevisions} className='m-3 relative'>
                     <div className='flex items-center gap-2 '>
-                        <textarea rows={4} placeholder='prompt for website Generation' className='flex-1 p-3 rounded-xl resize-none text-sm outline-none ring ring-gray-700 focus:ring-indigo-600 bg-gray-800 text-gray-100 placeholder-gray-400 transition-all' disabled={setGenerating || !input.trim()} value={input} onChange={(e) => setInput(e.target.value)} />
-                        <button>{setGenerating ? <Loader2Icon size={6} className='p-1.5 animate-spin text-white' /> : <SendIcon size={6} className='p-1.5 text-white' />}</button>
+                        <textarea rows={4} placeholder='prompt for website Generation' className='flex-1 p-3 rounded-xl resize-none text-sm outline-none ring ring-gray-700 focus:ring-indigo-600 bg-gray-800 text-gray-100 placeholder-gray-400 transition-all' disabled={generating} value={input} onChange={(e) => setInput(e.target.value)} />
+                        {/* <button>{setGenerating ? <Loader2Icon size={6} className='p-1.5 animate-spin text-white' /> : <SendIcon size={6} className='p-1.5 text-white' />}</button> */}
+                        <button disabled={generating || !input.trim()}>
+  {generating ? (
+    <Loader2Icon size={16} className="animate-spin text-white" />
+  ) : (
+    <SendIcon size={16} className="text-white" />
+  )}
+</button>
 
                     </div>
                 </form>

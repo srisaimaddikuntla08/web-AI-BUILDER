@@ -1,15 +1,40 @@
 
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { assets } from "../assets/assets";
 import { Link, useNavigate } from "react-router-dom";
 import { UserButton } from "@daveyplate/better-auth-ui";
 import { authClient } from "@/lib/auth-client";
+import api from "@/configs/axios";
+import { toast } from "sonner";
+
 
 const Navbar: React.FC = () => {
   const [menuOpen, setMenuOpen] = React.useState(false);
   const navigate = useNavigate();
   const {data:session} = authClient.useSession();
+  const [credits,setCredits] = useState(0)
+
+  const getCredits = async () => {
+      try{
+
+        const {data} = await api.get('/api/user/credits');
+          setCredits(data.credits);
+
+      }catch(err:any){
+        toast.error(err?.response?.data?.message || err.message);
+        console.log(err)
+      }
+  }
+
+  useEffect(()=>{
+    if(session?.user){
+    getCredits()
+    }
+
+  },[session?.user])
+
+ 
 
 
   return (
@@ -31,15 +56,19 @@ const Navbar: React.FC = () => {
       {/* Right Section */}
       <div className="flex items-center gap-3">
 
-       {!session?.user ?  <button
+       {!session?.user ?  (<button
           onClick={() => navigate("/auth/signIn")}
           className="px-6 py-1.5 bg-indigo-600 active:scale-95 hover:bg-indigo-700 transition rounded-md"
         >
           Get started
         </button>
-        :
+        ):(
+        <>
+        <button className="bg-white/10 px-5 py-1.5 text-xs sm:text-sm border text-gray-200 rounded-full">Credits : <span className="text-indigo-300">{credits}</span></button>
         <UserButton size="icon"/>
-        }
+        </>
+        )}
+      
 
         {/* Mobile Menu Button */}
         <button

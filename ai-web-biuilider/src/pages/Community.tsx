@@ -2,8 +2,9 @@ import React, { useEffect, useState } from 'react'
 import type { Project } from '../types'
 import { Loader2Icon, PlusIcon, TrashIcon } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
-import { dummyProjects } from '../assets/assets'
 import { Footer } from '../components/Footer'
+import api from '@/configs/axios'
+import { toast } from 'sonner'
 
 
 
@@ -16,20 +17,14 @@ const Community:React.FC = () => {
 
   const fetchProjects = async () => {
     try {
-      setLoading(true)
-
-      // 🔹 Replace this mock with a real API call
-      // const res = await fetch('/api/projects')
-      // const data = await res.json()
-
-      const data: Project[] = [] // mock empty response
-
-      setProjects(dummyProjects)
-    } catch (error) {
+     const {data} = await api.get('/api/project/publish')
+     setProjects(data.projects)
+     setLoading(false)
+    } catch (error:any) {
+      toast.error(error?.response?.data?.message || error.message)
       console.error('Failed to fetch projects', error)
-    } finally {
-      setTimeout(() => setLoading(false), 500)
-    }
+
+    } 
   }
 
 

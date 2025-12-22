@@ -1,6 +1,7 @@
-import { Request, Response } from "express"
-import prisma from '../db/db'
+import { Request, Response } from "express";
+import Stripe from 'stripe';
 import openai from "../config/openai";
+import prisma from '../db/db';
 
 
 export const getAllCredits = async (req: Request, res: Response) => {
@@ -9,7 +10,7 @@ export const getAllCredits = async (req: Request, res: Response) => {
         const userId = req.userId;
         if (!userId) {
             return res.status(401).json({ message: "unauthorized" })
-        }   
+        }
         const user = await prisma.user.findUnique({
             where: { id: userId }
         })
@@ -71,11 +72,12 @@ export const createUserProject = async (req: Request, res: Response) => {
             data: { credits: { decrement: 5 } },
         })
 
-         res.json({ projectId: project.id })
+        res.json({ projectId: project.id })
 
         //enchance user prompt 
         const promptEnhanceResponse = await openai.chat.completions.create({
-            model: 'z-ai/glm-4.50-air:free',
+            // model: 'z-ai/glm-4.50-air:free',
+            model: "kwaipilot/kat-coder-pro:free",
             messages: [
                 {
                     role: 'system',
@@ -122,7 +124,8 @@ Return ONLY the enhanced prompt, nothing else. Make it detailed but concise (2-3
         //generate a website code
 
         const codeGenerationResponse = await openai.chat.completions.create({
-            model: 'z-ai/glm-4.5-air:free',
+            // model: 'z-ai/glm-4.5-air:free',
+            model: "kwaipilot/kat-coder-pro:free",
             messages: [
                 {
                     role: 'system',
@@ -154,8 +157,8 @@ Return ONLY the enhanced prompt, nothing else. Make it detailed but concise (2-3
     The HTML should be complete and ready to render as-is with Tailwind CSS.`
                 },
                 {
-                    role:"user",
-                    content:enhancePrompt || '',
+                    role: "user",
+                    content: enhancePrompt || '',
                 }
             ]
         })
@@ -163,34 +166,50 @@ Return ONLY the enhanced prompt, nothing else. Make it detailed but concise (2-3
 
         const code = codeGenerationResponse.choices[0]?.message.content || ''
 
+        if (!code) {
+            await prisma.conversation.create({
+                data: {
+                    role: "assistant",
+                    content: "Unable to generate the code,please tru again",
+                    projectId: project.id
+                }
+            })
+
+            await prisma.user.update({
+                where: { id: userId },
+                data: { credits: { decrement: 5 } }
+            })
+            return;
+        }
+
         const version = await prisma.version.create({
-            data:{
-                code:code.replace(/'''[a-z]*\n?/gi,'').replace(/'''$/gi,'').trim(),
-                description : 'Initial version',
-                projectId : project.id
+            data: {
+                code: code.replace(/'''[a-z]*\n?/gi, '').replace(/'''$/gi, '').trim(),
+                description: 'Initial version',
+                projectId: project.id
             }
         })
 
         await prisma.conversation.create({
-            data:{
-                role:'assistant',
-                content:`i have created your website! you can preview it and request any changes`,
+            data: {
+                role: 'assistant',
+                content: `i have created your website! you can preview it and request any changes`,
                 projectId: project.id
             }
         })
 
         await prisma.websiteProject.update({
-            where:{id:project.id},
-            data:{
-                current_code: code.replace(/'''[a-z]*\n?/gi,'').replace(/'''$/g,'').trim(),
-                current_version_index:version.id
+            where: { id: project.id },
+            data: {
+                current_code: code.replace(/'''[a-z]*\n?/gi, '').replace(/'''$/g, '').trim(),
+                current_version_index: version.id
             }
         })
 
     } catch (error: any) {
         await prisma.user.update({
-            where:{id:userId},
-            data:{credits : {increment:5}}
+            where: { id: userId },
+            data: { credits: { increment: 5 } }
         })
         console.log(error.message);
         return res.status(500).json({ message: error.message })
@@ -208,17 +227,17 @@ export const getUserproject = async (req: Request, res: Response) => {
             return res.status(401).json({ message: "unauthorized" })
         }
 
-        const {projectId} = req.params; 
+        const { projectId } = req.params;
         const project = await prisma.websiteProject.findUnique({
-            where:{id:projectId,userId},
-            include:{
-                conversation:{
-                    orderBy:{timestamp:'asc'}
+            where: { id: projectId, userId },
+            include: {
+                conversation: {
+                    orderBy: { timestamp: 'asc' }
                 },
-                versions:{orderBy:{timestamp:'asc'}}
+                versions: { orderBy: { timestamp: 'asc' } }
             }
         })
-        return res.json({project})
+        return res.json({ project })
 
     } catch (error: any) {
         console.log(error.message);
@@ -227,7 +246,7 @@ export const getUserproject = async (req: Request, res: Response) => {
 }
 
 //controll function to getAll projects
-export const getUserProjects= async (req: Request, res: Response) => {
+export const getUserProjects = async (req: Request, res: Response) => {
 
     try {
         const userId = req.userId;
@@ -235,10 +254,10 @@ export const getUserProjects= async (req: Request, res: Response) => {
             return res.status(401).json({ message: "unauthorized" })
         }
         const projects = await prisma.websiteProject.findMany({
-            where: {userId},
-           orderBy:{updatedAt:'desc'}
+            where: { userId },
+            orderBy: { updatedAt: 'desc' }
         })
-        return res.json({ projects})
+        return res.json({ projects })
 
     } catch (error: any) {
         console.log(error.message);
@@ -256,22 +275,22 @@ export const togglePublish = async (req: Request, res: Response) => {
             return res.status(401).json({ message: "unauthorized" })
         }
 
-        const {projectId} = req.params;
-        const project  = await prisma.websiteProject.findUnique({
-            where:{id:projectId,userId},
+        const { projectId } = req.params;
+        const project = await prisma.websiteProject.findUnique({
+            where: { id: projectId, userId },
 
         })
 
-        if(!project) {
-            return res.status(404).json({message:'Project not found'})
+        if (!project) {
+            return res.status(404).json({ message: 'Project not found' })
         }
 
         await prisma.websiteProject.update({
-            where:{id:projectId},
-            data:{isPublished : !project.isPublished}
+            where: { id: projectId },
+            data: { isPublished: !project.isPublished }
         })
 
-        return res.json({ message:project.isPublished ? 'project unPublished ' : 'project published sucessfully' })
+        return res.json({ message: project.isPublished ? 'project unPublished ' : 'project published sucessfully' })
 
     } catch (error: any) {
         console.log(error.message);
@@ -283,7 +302,73 @@ export const togglePublish = async (req: Request, res: Response) => {
 //controller to buy credits
 export const purchaseCredits = async (req: Request, res: Response) => {
 
-    
+    try {
+        interface Plan {
+            credits: number
+            amount: number
+        }
+
+
+        const plans = {
+            basic: { credits: 100, amount: 5 },
+            pro: { credits: 400, amount: 19 },
+            enterprise: { credits: 1000, amount: 49 },
+
+        }
+
+        const userId = req.userId;
+        if(!userId){
+            return res.status(401).json({message:"unauthorized"})
+        }
+        const { planId } = req.body as { planId: keyof typeof plans }
+
+        
+        const origin = req.headers.origin as string
+
+        const plan: Plan = plans[planId]
+        if (!plan) {
+            return res.status(404).json({ message: "Plan not found" })
+
+        }
+
+        const transaction = await prisma.transaction.create({
+            data: { userId ,planId, amount: plan.amount, credits: plan.credits }
+        })
+
+
+        const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
+
+        const session = await stripe.checkout.sessions.create({
+            success_url: `${origin}/loading`,
+            cancel_url:`${origin}`,
+            line_items: [
+                {
+                    price_data:{
+                        currency:'usd',
+                        product_data:{
+                            name:`AiWebBuilder - ${plan.credits} credits`,
+                        },
+                        unit_amount:Math.floor(transaction.amount) * 100
+
+                     },
+                    quantity:1
+                },
+                
+            ],
+            mode: 'payment',
+            metadata:{
+                transactionId : transaction.id,
+                appId : 'ai-web-builder'
+            },
+            expires_at :Math.floor(Date.now()/1000) + 30 *60
+        });
+            res.json({payment_link:session.url})
+
+
+    } catch (error:any) {
+            console.log(error.code || error.message)
+            res.status(500).json({message:error.message})
+    }
 }
 
 

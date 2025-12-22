@@ -2,17 +2,18 @@ import React, { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import type { Project } from '../types';
 import { DownloadIcon, EyeIcon, EyeOffIcon, Fullscreen, Laptop2Icon, Loader2Icon, MessageSquareIcon, SaveIcon, SmartphoneIcon, TabletIcon, XIcon } from 'lucide-react';
-import { dummyConversations, dummyProjects, dummyVersion } from '../assets/assets';
 import Sidebar from '../components/Sidebar';
 import ProjectReview, { type ProjectPreviewRef } from '../components/projectReview';
+import api from '@/configs/axios';
+import { toast } from 'sonner';
+import { authClient } from '@/lib/auth-client';
 
 
 const Projects: React.FC = () => {
   const { projectId } = useParams();
-
-  console.log(projectId)
-
   const navigate = useNavigate();
+  const {data:session,isPending} = authClient.useSession();
+
 
 
   const [project, setProject] = useState<Project | null>(null);
@@ -25,24 +26,44 @@ const Projects: React.FC = () => {
 
   const previewRef = useRef<ProjectPreviewRef>(null)
 
-  const fecthProjects = () => {
-    const projectRes =  dummyProjects.find((project) => project.id === projectId);
-
-    setTimeout(() => {
-      if (projectRes) {
-        setProject({...projectRes,conversation:dummyConversations,versions:dummyVersion});
-        setLoading(false)
-        setGenerating(projectRes?.current_code ? false : true);
-        // setGenerating
-      }
-    }, 1000)
+  const fecthProjects = async() => {
+    try{
+      const {data} = await api.get(`/api/user/project/${projectId}`)
+      setProject(data.project)
+      setGenerating(!data.project.current_code ? false : true)
+      setLoading(false)
+    }catch(error:any){
+      toast.error(error?.response?.data?.message || error.message)
+      console.log(error)
+    }
   }
 
   const togglePublish = async()=>{
-
+    try{
+    const {data} = await api.get(`/api/user/publish-toggle/${projectId}`)
+    toast.success(data.message)
+      setProject((prev)=>prev ? ({...prev,isPublished : !prev.isPublished}) : prev)
+  }catch(error:any){
+    toast.error(error?.response?.data?.message || error.message)
+    console.log(error.message)
+  }
   }
   
   const saveProject = async()=>{
+  if(!previewRef.current) return;
+  const code = previewRef.current.getCode();
+  if(!code) return;
+  setIsSaving(true)
+  try{
+    const {data} = await api.put(`/api/project/save/${projectId}`,{code})
+    toast.success(data.message)
+  }catch(error:any){
+    toast.error(error?.response?.data?.message || error.message)
+    console.log(error.message)
+  }finally{
+    setIsSaving(false)
+
+  }
 
   }
 
@@ -64,13 +85,22 @@ const Projects: React.FC = () => {
   }
 
 
+  useEffect(()=>{
+    if(session?.user){
+      fecthProjects();
+    }else if(!isPending && !session?.user){
+      navigate("/")
+      toast("please login to view your projects")
+    }
+  },[session?.user])
+
+
   useEffect(() => {
-    fecthProjects();
-  }, [])
-
-
-
-
+    if(project && project.current_code){
+      const intervalId = setInterval(fecthProjects,1000)
+      return ()=>clearInterval(intervalId);
+    }
+  }, [project])
 
   //loading state
   if (loading) {
@@ -131,7 +161,7 @@ const Projects: React.FC = () => {
       <div className='flex-1 flex overflow-auto'> 
         <Sidebar isMenuOpen={isMenuOpen} project={project} setProject={(p)=>setProject(p)} setGenerating={setGenerating} generating={generating}/>
         <div className='flex-1 p-2 pl-0'>
-          <ProjectReview ref={previewRef} project={project} generating={generating} device={device}/>
+          <ProjectReview ref={previewRef} project={project} generating={generating} device={device} showEditorPanel={true}/>
         </div>
       </div>
 

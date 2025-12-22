@@ -5,7 +5,7 @@ const projectRoute = express.Router();
 
 projectRoute.post("/revision/:projectId",protect,makeRevision)
 projectRoute.put("/save/:projectId",protect,saveProjectCode)
-projectRoute.get("/rollback/:projectId",protect,rollbackToVersion),
+projectRoute.get("/rollback/:projectId/:versionId",protect,rollbackToVersion),
 projectRoute.delete("/:projectId",protect,deleteProject);
 projectRoute.get("/preview/:projectId",protect,getProjectPreview);
 projectRoute.get("/publish",getPublishedProjects);

@@ -9,7 +9,7 @@ userRoute.post("/project",protect,createUserProject)
 userRoute.get("/project/:projectId",protect,getUserproject);
 userRoute.get("/projects",protect,getUserProjects)
 userRoute.get("/publish-toggle/:projectId",protect,togglePublish),
-userRoute.get("/purchase-credits",protect,purchaseCredits);
+userRoute.post("/purchase-credits",protect,purchaseCredits);
 
 
 export default userRoute;
