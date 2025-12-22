@@ -165,7 +165,7 @@ Return ONLY the enhanced prompt, nothing else. Make it detailed but concise (2-3
 
         const version = await prisma.version.create({
             data:{
-                code:code.replace(/'''[a-z]*\n?/gi,'').replace(/'''$/g,'').trim(),
+                code:code.replace(/'''[a-z]*\n?/gi,'').replace(/'''$/gi,'').trim(),
                 description : 'Initial version',
                 projectId : project.id
             }
