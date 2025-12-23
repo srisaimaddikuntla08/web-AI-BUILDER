@@ -1,8 +1,0 @@
-export default {
-  buildCommand: "bun run build:bun",
-  functions: {
-    "dist/server.js": {
-      runtime: "bun"
-    }
-  }
-}

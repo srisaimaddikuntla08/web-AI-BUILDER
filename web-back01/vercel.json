@@ -2,7 +2,7 @@
   "buildCommand": "bun run build:bun",
   "functions": {
     "dist/server.js": {
-      "runtime": "bun"
+      "runtime": "bun@1.0.0"
     }
   }
 }
