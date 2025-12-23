@@ -1,6 +1,5 @@
 # Build stage
 FROM oven/bun:alpine AS build
-ENV DATABASE_URL=""
 
 # Set the working directory
 WORKDIR /app
@@ -14,8 +13,8 @@ RUN bun install --frozen-lockfile
 # Copy the rest of the application code
 COPY . .
 
-# Generate Prisma client
-RUN bun run prisma:generate
+# # Generate Prisma client
+# RUN bun run prisma:generate
 
 # Build the application using Bun
 RUN bun build --outfile=server.js --outdir=dist ./src/server.ts --target=bun
