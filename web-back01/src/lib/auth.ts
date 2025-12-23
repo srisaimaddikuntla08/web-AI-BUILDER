@@ -28,7 +28,7 @@ export const auth = betterAuth({
                 attributes:{
                     httpOnly:true,
                     secure:process.env.NODE_ENV === 'production',
-                    sameSite:process.env.NODE_ENV === 'production' ? 'none' : "lax",
+                    sameSite:'none',
                     path:'/'
                 }
             }

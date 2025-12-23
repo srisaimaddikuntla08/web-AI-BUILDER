@@ -2,5 +2,5 @@
   "watch": ["src"],
   "ext": "ts,tsx,json",
   "ignore": ["dist", "node_modules"],
-  "exec": "tsx ./src/main.ts"
+  "exec": "bun ./src/main.ts"
 }
