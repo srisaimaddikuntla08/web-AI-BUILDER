@@ -1,12 +1,12 @@
-import express from 'express'
-const app = express();
-import 'dotenv/config'
-import cors from 'cors'
 import { toNodeHandler } from 'better-auth/node';
-import { auth } from './lib/auth';
-import userRoute from './routes/userRoutes';
-import projectRoute from './routes/projectRoutes';
+import cors from 'cors';
+import 'dotenv/config';
+import express from 'express';
 import { stripeWebHook } from './controllers/stripeWebHooks';
+import { auth } from './lib/auth';
+import projectRoute from './routes/projectRoutes';
+import userRoute from './routes/userRoutes';
+const app = express();
 
 const port = 3000;
 
@@ -25,8 +25,8 @@ app.use("/api/project",projectRoute)
 
 app.get("/",(req,res)=> res.send("server is on "))
 
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(port,()=>console.log(`server is running on port :${port}`))
+}
 
-
-
-
-app.listen(port,()=>console.log(`server is running on port :${port}`))
+export default app
