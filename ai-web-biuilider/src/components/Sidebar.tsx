@@ -1,9 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react'
-import type { Message, Project, Version } from '../types'
-import { BotIcon, EyeIcon, Loader, Loader2Icon, SendIcon, UserIcon } from 'lucide-react'
-import { Link } from 'react-router-dom'
 import api from '@/configs/axios'
+import { BotIcon, EyeIcon, Loader2Icon, SendIcon, UserIcon } from 'lucide-react'
+import React, { useEffect, useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { toast } from 'sonner'
+import type { Message, Project, Version } from '../types'
 
 interface SidebarProps {
     isMenuOpen: boolean,
@@ -11,7 +11,6 @@ interface SidebarProps {
     setProject: (project: Project) => void,
     generating: boolean,
     setGenerating: (IsGenerating: boolean) => void
-
 }
 
 const Sidebar = ({ isMenuOpen, project, setProject, generating, setGenerating }: SidebarProps) => {
@@ -19,49 +18,49 @@ const Sidebar = ({ isMenuOpen, project, setProject, generating, setGenerating }:
     const messageRef = useRef<HTMLDivElement>(null)
     const [input, setInput] = useState('')
     const fecthProjects = async () => {
-            try{
-                const {data} = await api.get(`/api/user/project/${project.id}`)
-                setProject(data.project)
-            }catch(error:any){
-                toast.error(error?.response?.data?.message || error.message)
-                console.log(error)
+        try {
+            const { data } = await api.get(`/api/user/project/${project.id}`)
+            setProject(data.project)
+        } catch (error: any) {
+            toast.error(error?.response?.data?.message || error.message)
+            console.log(error)
 
-            }
+        }
     }
 
     const handleRollBack = async (versionId: string) => {
-            try{
-                const confirm = window.confirm('Are you sure you want to rollback to this version')
-                if(!confirm)return;
-                setGenerating(true)
-                 const {data} = await api.get(`/api/projects/rollback/${project.id}/${versionId}`)
-                 const {data:data2} = await  api.get(`/api/user/project/${project.id}`)
-                 toast.success(data.message)
-                 setProject(data2.project)
-                 setGenerating(false)
+        try {
+            const confirm = window.confirm('Are you sure you want to rollback to this version')
+            if (!confirm) return;
+            setGenerating(true)
+            const { data } = await api.get(`/api/projects/rollback/${project.id}/${versionId}`)
+            const { data: data2 } = await api.get(`/api/user/project/${project.id}`)
+            toast.success(data.message)
+            setProject(data2.project)
+            setGenerating(false)
 
-            }catch(error:any){
-                setGenerating(false)
-                toast.error(error?.response?.data.message || error.message)
-                console.log(error)
+        } catch (error: any) {
+            setGenerating(false)
+            toast.error(error?.response?.data.message || error.message)
+            console.log(error)
 
-            }
+        }
     }
 
-    const handleRevisions = async (e:React.FormEvent)=>{
+    const handleRevisions = async (e: React.FormEvent) => {
         e.preventDefault();
-        let interval:number | undefined
-        try{
+        let interval: number | undefined
+        try {
             setGenerating(true)
-            interval = setInterval(()=>{
+            interval = setInterval(() => {
                 fecthProjects();
-            },1000)
-            const {data} = await api.post(`/api/project/revision/${project.id}`,{message:input})
+            }, 1000)
+            const { data } = await api.post(`/api/project/revision/${project.id}`, { message: input })
             fecthProjects()
             toast.success(data.message)
             setInput('')
             clearInterval(interval)
-        }catch(error:any){
+        } catch (error: any) {
             setGenerating(false)
             toast.error(error?.response?.data?.message || error.message)
             console.log(error)
@@ -124,7 +123,7 @@ const Sidebar = ({ isMenuOpen, project, setProject, generating, setGenerating }:
                             )
                         }
                     })}
-                    {setGenerating && (
+                    {generating && (
                         <div className='flex items-start gap-3 justify-start'>
                             <div className='w-8 h-8 rounded-full bg-linear-to from-indigo-600 to-indigo-700 items-center justify-center'>
                                 <BotIcon size={5} className='text-white' />
@@ -143,14 +142,14 @@ const Sidebar = ({ isMenuOpen, project, setProject, generating, setGenerating }:
                 <form onSubmit={handleRevisions} className='m-3 relative'>
                     <div className='flex items-center gap-2 '>
                         <textarea rows={4} placeholder='prompt for website Generation' className='flex-1 p-3 rounded-xl resize-none text-sm outline-none ring ring-gray-700 focus:ring-indigo-600 bg-gray-800 text-gray-100 placeholder-gray-400 transition-all' disabled={generating} value={input} onChange={(e) => setInput(e.target.value)} />
-                        {/* <button>{setGenerating ? <Loader2Icon size={6} className='p-1.5 animate-spin text-white' /> : <SendIcon size={6} className='p-1.5 text-white' />}</button> */}
-                        <button disabled={generating || !input.trim()}>
-  {generating ? (
-    <Loader2Icon size={16} className="animate-spin text-white" />
-  ) : (
-    <SendIcon size={16} className="text-white" />
-  )}
-</button>
+                        <button>{generating || input.trim() ? <Loader2Icon size={6} className='p-1.5 animate-spin text-white' /> : <SendIcon size={6} className='p-1.5 text-white' />}
+                            {/* <button disabled={generating || !input.trim()}> */}
+                            {generating ? (
+                                <Loader2Icon size={16} className="animate-spin text-white" />
+                            ) : (
+                                <SendIcon size={16} className="text-white" />
+                            )}
+                        </button>
 
                     </div>
                 </form>

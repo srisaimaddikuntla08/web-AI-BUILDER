@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import type { Project } from '../types';
 import { DownloadIcon, EyeIcon, EyeOffIcon, Fullscreen, Laptop2Icon, Loader2Icon, MessageSquareIcon, SaveIcon, SmartphoneIcon, TabletIcon, XIcon } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
-import ProjectReview, { type ProjectPreviewRef } from '../components/projectReview';
+import ProjectReview, { type ProjectPreviewRef } from '../components/ProjectReview';
 import api from '@/configs/axios';
 import { toast } from 'sonner';
 import { authClient } from '@/lib/auth-client';
