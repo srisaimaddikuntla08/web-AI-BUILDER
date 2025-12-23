@@ -3,16 +3,17 @@
     /* Language & Environment */
     "lib": ["ES2022"],
     "target": "ES2022",
-    "module": "NodeNext",
-    "moduleResolution": "nodenext",
-    "allowImportingTsExtensions": true,
+    "module": "es2015",
+    "moduleResolution": "bundler",
+    // "allowImportingTsExtensions": true,
+    // "emitDeclarationOnly": true,
+    // "declaration": true,
 
 
     /* Output */
     "outDir": "dist",
     "rootDir": ".",
     "sourceMap": true,
-    "declaration": false,
 
     /* Interop & Modules */
     "esModuleInterop": true,

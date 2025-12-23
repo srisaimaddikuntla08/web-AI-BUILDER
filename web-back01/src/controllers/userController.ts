@@ -1,7 +1,7 @@
 import { type Request, type Response } from "express";
 import Stripe from 'stripe';
-import openai from "../config/openai.ts";
-import prisma from '../db/db.ts';
+import openai from "../config/openai";
+import prisma from '../db/db';
 
 
 export const getAllCredits = async (req: Request, res: Response) => {

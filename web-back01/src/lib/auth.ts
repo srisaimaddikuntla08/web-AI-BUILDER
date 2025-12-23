@@ -1,6 +1,6 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
-import prisma from "../db/db.ts";
+import prisma from "../db/db";
 
 
 const trustedOrigins = process.env.TRUSTED_ORIGIN?.split(',') || []

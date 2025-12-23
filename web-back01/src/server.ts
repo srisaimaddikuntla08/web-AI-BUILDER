@@ -3,10 +3,10 @@ const app = express();
 import 'dotenv/config'
 import cors from 'cors'
 import { toNodeHandler } from 'better-auth/node';
-import { auth } from './lib/auth.ts';
-import userRoute from './routes/userRoutes.ts';
-import projectRoute from './routes/projectRoutes.ts';
-import { stripeWebHook } from './controllers/stripeWebHooks.ts';
+import { auth } from './lib/auth';
+import userRoute from './routes/userRoutes';
+import projectRoute from './routes/projectRoutes';
+import { stripeWebHook } from './controllers/stripeWebHooks';
 
 const port = 3000;
 

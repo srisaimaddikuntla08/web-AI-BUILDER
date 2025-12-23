@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
-import openai from "../config/openai.ts";
-import prisma from "../db/db.ts";
+import openai from "../config/openai";
+import prisma from "../db/db";
 
 
 //controller function to make revision
